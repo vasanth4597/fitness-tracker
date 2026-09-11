@@ -36,7 +36,7 @@ exports.AppModule = AppModule = __decorate([
                         database: 'database.sqlite',
                     }),
                 autoLoadEntities: true,
-                synchronize: true,
+                synchronize: process.env.NODE_ENV !== 'production',
                 logging: process.env.NODE_ENV !== 'production',
             }),
             users_module_1.UsersModule,
