@@ -15,19 +15,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
+const users_service_1 = require("../users/users.service");
 const create_user_dto_1 = require("../users/dto/create-user.dto");
 let AuthController = class AuthController {
     authService;
-    constructor(authService) {
+    usersService;
+    constructor(authService, usersService) {
         this.authService = authService;
+        this.usersService = usersService;
     }
     register(createUserDto) {
         return this.authService.register(createUserDto);
     }
     async login(body) {
+        const existingUser = await this.usersService.findOneByEmail(body.email);
+        if (!existingUser) {
+            throw new common_1.UnauthorizedException('Account not found. Please register first.');
+        }
         const user = await this.authService.validateUser(body.email, body.password);
         if (!user) {
-            throw new common_1.UnauthorizedException('Invalid credentials');
+            throw new common_1.UnauthorizedException('Wrong password. Please try again.');
         }
         return this.authService.login(user);
     }
@@ -49,6 +56,7 @@ __decorate([
 ], AuthController.prototype, "login", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
-    __metadata("design:paramtypes", [auth_service_1.AuthService])
+    __metadata("design:paramtypes", [auth_service_1.AuthService,
+        users_service_1.UsersService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map
